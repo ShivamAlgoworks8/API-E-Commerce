@@ -1,32 +1,30 @@
 const express = require("express");
-const cors = require("cors");
 const mongoose = require("mongoose");
+const cors = require("cors");
 require("dotenv").config();
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const productRoutes = require("./routes/productRoutes");
+const merchantRoutes = require("./routes/merchantRoutes");
 
-// Middleware
+const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Test route
-app.get("/", (req, res) => {
-  res.json({
-    message: "E-Commerce API is running successfully",
-  });
-});
+app.use("/api/products", productRoutes);
+app.use("/api/merchants", merchantRoutes);
 
-// MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("MongoDB connected successfully");
 
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+    app.listen(process.env.PORT || 3000, () => {
+      console.log(
+        `Server running on http://localhost:${process.env.PORT || 3000}`
+      );
     });
   })
   .catch((error) => {
-    console.error("MongoDB connection failed:", error.message);
+    console.error("MongoDB connection failed:", error);
   });
