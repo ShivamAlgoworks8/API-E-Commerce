@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 // Repository handles database operations for Order
 // MongoRepository already provides CRUD methods
-public interface OrderRepository extends MongoRepository<Order, String> {
+public interface OrderRepository extends
+        MongoRepository<Order, String> {
 
 }
