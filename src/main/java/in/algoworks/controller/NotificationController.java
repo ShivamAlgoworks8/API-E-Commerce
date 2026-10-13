@@ -1,4 +1,3 @@
-
 package in.algoworks.controller;
 
 import in.algoworks.entity.Notification;
@@ -20,7 +19,8 @@ public class NotificationController {
     }
 
     @PostMapping
-    public Notification createNotification(@RequestBody Notification notification) {
+    public Notification createNotification(
+            @RequestBody Notification notification) {
         return notificationService.createNotification(notification);
     }
 
@@ -30,20 +30,35 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Notification> getNotificationById(@PathVariable String id) {
+    public ResponseEntity<Notification> getNotificationById(
+            @PathVariable String id) {
         return notificationService.getNotificationById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Notification> updateNotification(
+            @PathVariable String id,
+            @RequestBody Notification notification) {
+        return notificationService.updateNotification(id, notification)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Notification> markAsRead(@PathVariable String id) {
-        return ResponseEntity.ok(notificationService.markAsRead(id));
+    public ResponseEntity<Notification> markAsRead(
+            @PathVariable String id) {
+        return notificationService.markAsRead(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable String id) {
-        notificationService.deleteNotification(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteNotification(
+            @PathVariable String id) {
+        return notificationService.deleteNotification(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }

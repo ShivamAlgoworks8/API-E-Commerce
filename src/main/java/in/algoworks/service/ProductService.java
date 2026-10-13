@@ -1,5 +1,6 @@
 package in.algoworks.service;
 
+import in.algoworks.dto.ProductRequestDTO;
 import in.algoworks.entity.Product;
 import in.algoworks.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,23 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Product createProduct(Product productReq) {
-        Product productResp = productRepository.save(productReq);
-        return productResp;
+    // Create a new product using DTO
+    public Product createProduct(ProductRequestDTO productRequest) {
+
+        Product product = new Product();
+
+        product.setName(productRequest.getName());
+        product.setPrice(productRequest.getPrice());
+        product.setStock(productRequest.getStock());
+        product.setDescription(productRequest.getDescription());
+        product.setProductType(productRequest.getProductType());
+
+        return productRepository.save(product);
     }
 
+    // Get product by MongoDB ID
     public Product getProduct(String id) {
+
         Optional<Product> productResp = productRepository.findById(id);
 
         if (productResp.isPresent()) {
@@ -31,11 +43,13 @@ public class ProductService {
         return null;
     }
 
+    // Get all products
     public List<Product> getAllProduct() {
-        List<Product> productList = productRepository.findAll();
-        return productList;
+        return productRepository.findAll();
     }
-    public Product updateProduct(String id, Product productReq) {
+
+    // Update an existing product using DTO
+    public Product updateProduct(String id, ProductRequestDTO productRequest) {
 
         Optional<Product> existingProduct = productRepository.findById(id);
 
@@ -45,14 +59,16 @@ public class ProductService {
 
         Product productToSave = existingProduct.get();
 
-        productToSave.setName(productReq.getName());
-        productToSave.setPrice(productReq.getPrice());
-        productToSave.setStock(productReq.getStock());
-        productToSave.setDescription(productReq.getDescription());
-        productToSave.setProductType(productReq.getProductType());
+        productToSave.setName(productRequest.getName());
+        productToSave.setPrice(productRequest.getPrice());
+        productToSave.setStock(productRequest.getStock());
+        productToSave.setDescription(productRequest.getDescription());
+        productToSave.setProductType(productRequest.getProductType());
 
         return productRepository.save(productToSave);
     }
+
+    // Delete product by MongoDB ID
     public Boolean deleteProduct(String id) {
 
         Boolean isProduct = productRepository.existsById(id);

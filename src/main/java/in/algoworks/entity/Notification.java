@@ -1,4 +1,3 @@
-
 package in.algoworks.entity;
 
 import org.springframework.data.annotation.Id;
@@ -15,7 +14,9 @@ public class Notification {
     private String title;
     private String message;
     private String type;
+    private String status = "Active";
     private boolean read = false;
+    private String date;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Notification() {
@@ -25,6 +26,7 @@ public class Notification {
         this.title = title;
         this.message = message;
         this.type = type;
+        this.status = "Active";
         this.read = false;
         this.createdAt = LocalDateTime.now();
     }
@@ -61,12 +63,28 @@ public class Notification {
         this.type = type;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public boolean isRead() {
         return read;
     }
 
     public void setRead(boolean read) {
         this.read = read;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public LocalDateTime getCreatedAt() {

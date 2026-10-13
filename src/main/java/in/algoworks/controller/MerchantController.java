@@ -1,5 +1,7 @@
+
 package in.algoworks.controller;
 
+import in.algoworks.dto.MerchantRequestDTO;
 import in.algoworks.entity.Merchant;
 import in.algoworks.service.MerchantService;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/merchants")
 public class MerchantController {
 
-    private MerchantService merchantService;
+    private final MerchantService merchantService;
 
     public MerchantController(MerchantService merchantService) {
         this.merchantService = merchantService;
@@ -19,7 +21,8 @@ public class MerchantController {
 
     // Create Merchant
     @PostMapping
-    public Merchant createMerchant(@RequestBody Merchant merchantReq) {
+    public Merchant createMerchant(
+            @RequestBody MerchantRequestDTO merchantReq) {
         return merchantService.createMerchant(merchantReq);
     }
 
@@ -39,8 +42,7 @@ public class MerchantController {
     @PutMapping("/{id}")
     public Merchant updateMerchant(
             @PathVariable String id,
-            @RequestBody Merchant merchantReq) {
-
+            @RequestBody MerchantRequestDTO merchantReq) {
         return merchantService.updateMerchant(id, merchantReq);
     }
 

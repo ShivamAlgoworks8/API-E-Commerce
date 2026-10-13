@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-
+import in.algoworks.dto.OrderRequestDTO;
 // Handles HTTP requests related to Orders
 @RestController
 @RequestMapping("/api/orders")
@@ -32,8 +32,8 @@ public class OrderController {
     // Create a new order
     // POST /api/orders
     @PostMapping
-    public Order createOrder(@RequestBody Order order) {
-        return orderService.createOrder(order);
+    public Order createOrder(@RequestBody OrderRequestDTO orderRequest) {
+        return orderService.createOrder(orderRequest);
     }
 
     // Get all orders
@@ -55,10 +55,11 @@ public class OrderController {
     @PutMapping("/{id}")
     public Order updateOrder(
             @PathVariable String id,
-            @RequestBody Order order) {
+            @RequestBody OrderRequestDTO orderRequest) {
 
-        return orderService.updateOrder(id, order);
+        return orderService.updateOrder(id, orderRequest);
     }
+
 
     // Delete an order
     // DELETE /api/orders/{id}

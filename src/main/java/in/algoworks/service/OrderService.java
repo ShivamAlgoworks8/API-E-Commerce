@@ -3,6 +3,8 @@ import java.util.Optional;
 import in.algoworks.entity.Order;
 import in.algoworks.repository.OrderRepository;
 import org.springframework.stereotype.Service;
+import in.algoworks.dto.OrderRequestDTO;
+import java.util.Optional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +22,18 @@ public class OrderService {
     }
 
     // Create a new order
-    public Order createOrder(Order order) {
+    public Order createOrder(OrderRequestDTO orderRequest) {
 
-        // Save order into MongoDB
+        Order order = new Order();
+
+        order.setOrderId(orderRequest.getOrderId());
+        order.setCustomer(orderRequest.getCustomer());
+        order.setProduct(orderRequest.getProduct());
+        order.setAmount(orderRequest.getAmount());
+        order.setPaymentStatus(orderRequest.getPaymentStatus());
+        order.setOrderStatus(orderRequest.getOrderStatus());
+        order.setDate(orderRequest.getDate());
+
         return orderRepository.save(order);
     }
 
@@ -49,7 +60,7 @@ public class OrderService {
     }
 
     // Update an existing order
-    public Order updateOrder(String id, Order orderRequest) {
+    public Order updateOrder(String id, OrderRequestDTO orderRequest) {
 
         // First find the existing order
         Optional<Order> existingOrder = orderRepository.findById(id);

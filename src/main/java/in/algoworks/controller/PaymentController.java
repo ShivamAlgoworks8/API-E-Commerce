@@ -4,7 +4,7 @@ package in.algoworks.controller;
 import in.algoworks.entity.Payment;
 import in.algoworks.service.PaymentService;
 import org.springframework.web.bind.annotation.*;
-
+import in.algoworks.dto.PaymentRequestDTO;
 import java.util.List;
 @CrossOrigin(origins = "http://localhost:3001")
 @RestController
@@ -19,9 +19,10 @@ public class PaymentController {
 
     // Create payment
     @PostMapping
-    public Payment createPayment(@RequestBody Payment payment) {
-        return paymentService.createPayment(payment);
+    public Payment createPayment(@RequestBody PaymentRequestDTO paymentRequest) {
+        return paymentService.createPayment(paymentRequest);
     }
+
 
     // Get all payments
     @GetMapping
@@ -39,7 +40,7 @@ public class PaymentController {
     @PutMapping("/{id}")
     public Payment updatePayment(
             @PathVariable String id,
-            @RequestBody Payment paymentRequest) {
+            @RequestBody PaymentRequestDTO paymentRequest) {
         return paymentService.updatePayment(id, paymentRequest);
     }
 

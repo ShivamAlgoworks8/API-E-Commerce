@@ -2,6 +2,7 @@ package in.algoworks.service;
 import in.algoworks.entity.Payment;
 import in.algoworks.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
+import in.algoworks.dto.PaymentRequestDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,20 @@ public class PaymentService {
     }
 
     // Create a new payment and save it to MongoDB
-    public Payment createPayment(Payment payment) {
+    public Payment createPayment(PaymentRequestDTO paymentRequest) {
+
+        Payment payment = new Payment();
+
+        payment.setPaymentId(paymentRequest.getPaymentId());
+        payment.setOrderId(paymentRequest.getOrderId());
+        payment.setPaymentStatus(paymentRequest.getPaymentStatus());
+        payment.setPaymentType(paymentRequest.getPaymentType());
+        payment.setPaymentDate(paymentRequest.getPaymentDate());
+        payment.setPaymentTime(paymentRequest.getPaymentTime());
+        payment.setPaymentAmount(paymentRequest.getPaymentAmount());
+        payment.setCustomerId(paymentRequest.getCustomerId());
+        payment.setCustomerName(paymentRequest.getCustomerName());
+
         return paymentRepository.save(payment);
     }
 
@@ -35,15 +49,13 @@ public class PaymentService {
         return paymentRepository.findById(id).orElse(null);
     }
 
-    public Payment updatePayment(String id, Payment paymentRequest) {
+    public Payment updatePayment(String id, PaymentRequestDTO paymentRequest) {
 
         Optional<Payment> existingPayment = paymentRepository.findById(id);
         if (existingPayment.isEmpty()) {
             return null;
         }
-
         Payment paymentToUpdate = existingPayment.get();
-
         paymentToUpdate.setPaymentId(paymentRequest.getPaymentId());
 
 
