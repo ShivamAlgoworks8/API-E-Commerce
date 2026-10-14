@@ -1,10 +1,11 @@
+
 package in.algoworks.service;
 
+import in.algoworks.dto.NotificationRequestDTO;
 import in.algoworks.entity.Notification;
 import in.algoworks.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,11 +18,23 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
-    public Notification createNotification(Notification notification) {
-        notification.setId(null);
+    public Notification createNotification(NotificationRequestDTO request) {
+        Notification notification = new Notification();
 
-        if (notification.getCreatedAt() == null) {
-            notification.setCreatedAt(LocalDateTime.now());
+        notification.setTitle(request.getTitle());
+        notification.setMessage(request.getMessage());
+        notification.setType(request.getType());
+
+        if (request.getStatus() != null) {
+            notification.setStatus(request.getStatus());
+        }
+
+        if (request.getRead() != null) {
+            notification.setRead(request.getRead());
+        }
+
+        if (request.getDate() != null) {
+            notification.setDate(request.getDate());
         }
 
         return notificationRepository.save(notification);
@@ -36,14 +49,24 @@ public class NotificationService {
     }
 
     public Optional<Notification> updateNotification(
-            String id, Notification updatedData) {
+            String id, NotificationRequestDTO updatedData) {
 
         return notificationRepository.findById(id).map(existing -> {
             existing.setTitle(updatedData.getTitle());
             existing.setMessage(updatedData.getMessage());
             existing.setType(updatedData.getType());
-            existing.setStatus(updatedData.getStatus());
-            existing.setDate(updatedData.getDate());
+
+            if (updatedData.getRead() != null) {
+                existing.setRead(updatedData.getRead());
+            }
+
+            if (updatedData.getStatus() != null) {
+                existing.setStatus(updatedData.getStatus());
+            }
+
+            if (updatedData.getDate() != null) {
+                existing.setDate(updatedData.getDate());
+            }
 
             return notificationRepository.save(existing);
         });

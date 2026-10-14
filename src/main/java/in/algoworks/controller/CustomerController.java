@@ -1,12 +1,11 @@
 
 package in.algoworks.controller;
-
+import in.algoworks.dto.CustomerRequestDTO;
 import in.algoworks.entity.Customer;
 import in.algoworks.service.CustomerService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/customers")
 @CrossOrigin(origins = "http://localhost:3001")
@@ -19,8 +18,9 @@ public class CustomerController {
     }
 
     @PostMapping
-    public Customer createCustomer(@RequestBody Customer customer) {
-        return customerService.createCustomer(customer);
+    public Customer createCustomer(
+            @RequestBody CustomerRequestDTO customerReq) {
+        return customerService.createCustomer(customerReq);
     }
 
     @GetMapping
@@ -36,8 +36,8 @@ public class CustomerController {
     @PutMapping("/{id}")
     public Customer updateCustomer(
             @PathVariable String id,
-            @RequestBody Customer customer) {
-        return customerService.updateCustomer(id, customer);
+            @RequestBody CustomerRequestDTO customerReq) {
+        return customerService.updateCustomer(id, customerReq);
     }
 
     @DeleteMapping("/{id}")

@@ -3,6 +3,7 @@ package in.algoworks.service;
 
 import in.algoworks.entity.Customer;
 import in.algoworks.repository.CustomerRepository;
+import in.algoworks.dto.CustomerRequestDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,12 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public Customer createCustomer(Customer customer) {
+    public Customer createCustomer(CustomerRequestDTO customerReq) {
+        Customer customer = new Customer();
+        customer.setName(customerReq.getName());
+        customer.setEmail(customerReq.getEmail());
+        customer.setPhone(customerReq.getPhone());
+        customer.setAddress(customerReq.getAddress());
         return customerRepository.save(customer);
     }
 
@@ -30,13 +36,13 @@ public class CustomerService {
                         new RuntimeException("Customer not found: " + id));
     }
 
-    public Customer updateCustomer(String id, Customer request) {
+    public Customer updateCustomer(String id, CustomerRequestDTO customerReq) {
         Customer customer = getCustomer(id);
 
-        customer.setName(request.getName());
-        customer.setEmail(request.getEmail());
-        customer.setPhone(request.getPhone());
-        customer.setAddress(request.getAddress());
+        customer.setName(customerReq.getName());
+        customer.setEmail(customerReq.getEmail());
+        customer.setPhone(customerReq.getPhone());
+        customer.setAddress(customerReq.getAddress());
 
         return customerRepository.save(customer);
     }

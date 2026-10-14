@@ -4,6 +4,7 @@ import in.algoworks.entity.Notification;
 import in.algoworks.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import in.algoworks.dto.NotificationRequestDTO;
 
 import java.util.List;
 
@@ -20,8 +21,8 @@ public class NotificationController {
 
     @PostMapping
     public Notification createNotification(
-            @RequestBody Notification notification) {
-        return notificationService.createNotification(notification);
+            @RequestBody NotificationRequestDTO request) {
+        return notificationService.createNotification(request);
     }
 
     @GetMapping
@@ -40,8 +41,8 @@ public class NotificationController {
     @PutMapping("/{id}")
     public ResponseEntity<Notification> updateNotification(
             @PathVariable String id,
-            @RequestBody Notification notification) {
-        return notificationService.updateNotification(id, notification)
+            @RequestBody NotificationRequestDTO request) {
+        return notificationService.updateNotification(id, request)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
