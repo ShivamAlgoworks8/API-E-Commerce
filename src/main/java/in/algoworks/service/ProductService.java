@@ -4,6 +4,7 @@ import in.algoworks.dto.ProductRequestDTO;
 import in.algoworks.entity.Product;
 import in.algoworks.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import in.algoworks.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,16 +33,14 @@ public class ProductService {
     }
 
     // Get product by MongoDB ID
+
     public Product getProduct(String id) {
-
-        Optional<Product> productResp = productRepository.findById(id);
-
-        if (productResp.isPresent()) {
-            return productResp.get();
-        }
-
-        return null;
+        return productRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Product not found with id: " + id));
     }
+
 
     // Get all products
     public List<Product> getAllProduct() {
@@ -54,7 +53,8 @@ public class ProductService {
         Optional<Product> existingProduct = productRepository.findById(id);
 
         if (existingProduct.isEmpty()) {
-            return null;
+            throw new ResourceNotFoundException(
+                    "Product not found with id: " + id);
         }
 
         Product productToSave = existingProduct.get();

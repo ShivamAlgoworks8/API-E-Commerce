@@ -1,8 +1,10 @@
+
 package in.algoworks.controller;
 
 import in.algoworks.dto.ProductRequestDTO;
 import in.algoworks.entity.Product;
 import in.algoworks.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,14 +31,15 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody ProductRequestDTO productRequest) {
+    public Product createProduct(
+            @Valid @RequestBody ProductRequestDTO productRequest) {
         return productService.createProduct(productRequest);
     }
 
     @PutMapping("/{id}")
     public Product updateProduct(
             @PathVariable String id,
-            @RequestBody ProductRequestDTO productRequest) {
+            @Valid @RequestBody ProductRequestDTO productRequest) {
         return productService.updateProduct(id, productRequest);
     }
 

@@ -1,10 +1,20 @@
 package in.algoworks.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
 public class ProductRequestDTO {
 
+    @NotBlank(message = "Product name is required")
     private String name;
+
+    @Positive(message = "Price must be greater than zero")
     private double price;
+
+    @Min(value = 0, message = "Stock cannot be negative")
     private int stock;
+
     private String description;
     private String productType;
 
