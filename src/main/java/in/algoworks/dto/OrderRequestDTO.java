@@ -1,13 +1,24 @@
 package in.algoworks.dto;
-
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 public class OrderRequestDTO {
 
     private String orderId;
+
+    @NotBlank(message = "Customer name is required")
     private String customer;
+
+    @NotBlank(message = "Product name is required")
     private String product;
+
+    @Positive(message = "Order amount must be greater than zero")
     private double amount;
+
     private String paymentStatus;
+
+    @NotBlank(message = "Order status is required")
     private String orderStatus;
+
     private String date;
 
     public String getOrderId() {

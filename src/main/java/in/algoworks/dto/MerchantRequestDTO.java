@@ -1,12 +1,19 @@
-
 package in.algoworks.dto;
+import jakarta.validation.constraints.NotBlank;
 
 public class MerchantRequestDTO {
-
+    @NotBlank(message = "Merchant name is required")
     private String merchantName;
+
+    @NotBlank(message = "Brand name is required")
     private String brandName;
+
+    @NotBlank(message = "Product type is required")
     private String productType;
+
+    @NotBlank(message = "Status is required")
     private String status;
+
     private String image;
 
     public String getMerchantName() {

@@ -5,6 +5,7 @@ import in.algoworks.dto.MerchantRequestDTO;
 import in.algoworks.entity.Merchant;
 import in.algoworks.service.MerchantService;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class MerchantController {
     // Create Merchant
     @PostMapping
     public Merchant createMerchant(
-            @RequestBody MerchantRequestDTO merchantReq) {
+            @Valid @RequestBody MerchantRequestDTO merchantReq) {
         return merchantService.createMerchant(merchantReq);
     }
 
@@ -42,7 +43,7 @@ public class MerchantController {
     @PutMapping("/{id}")
     public Merchant updateMerchant(
             @PathVariable String id,
-            @RequestBody MerchantRequestDTO merchantReq) {
+            @Valid @RequestBody MerchantRequestDTO merchantReq) {
         return merchantService.updateMerchant(id, merchantReq);
     }
 

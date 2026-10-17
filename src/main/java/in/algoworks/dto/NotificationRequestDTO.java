@@ -1,13 +1,24 @@
 
 package in.algoworks.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class NotificationRequestDTO {
 
+    @NotBlank(message = "Notification title is required")
     private String title;
+
+    @NotBlank(message = "Notification message is required")
     private String message;
+
+    @NotBlank(message = "Notification type is required")
     private String type;
+
+    @NotBlank(message = "Notification status is required")
     private String status;
+
     private Boolean read;
+
     private String date;
 
     public String getTitle() {

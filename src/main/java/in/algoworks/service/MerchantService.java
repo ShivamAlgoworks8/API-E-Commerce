@@ -3,11 +3,12 @@ package in.algoworks.service;
 
 import in.algoworks.dto.MerchantRequestDTO;
 import in.algoworks.entity.Merchant;
+import in.algoworks.exception.ResourceNotFoundException;
 import in.algoworks.repository.MerchantRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MerchantService {
@@ -38,41 +39,32 @@ public class MerchantService {
 
     // Get Merchant by ID
     public Merchant getMerchant(String id) {
-        Optional<Merchant> merchantResp =
-                merchantRepository.findById(id);
-
-        return merchantResp.orElse(null);
+        return merchantRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Merchant not found with id: " + id));
     }
 
     // Update Merchant
     public Merchant updateMerchant(
             String id, MerchantRequestDTO merchantReq) {
 
-        Optional<Merchant> existingMerchant =
-                merchantRepository.findById(id);
+        Merchant merchant = getMerchant(id);
 
-        if (existingMerchant.isEmpty()) {
-            return null;
-        }
+        merchant.setMerchantName(merchantReq.getMerchantName());
+        merchant.setBrandName(merchantReq.getBrandName());
+        merchant.setProductType(merchantReq.getProductType());
+        merchant.setStatus(merchantReq.getStatus());
+        merchant.setImage(merchantReq.getImage());
 
-        Merchant merchantToSave = existingMerchant.get();
-
-        merchantToSave.setMerchantName(merchantReq.getMerchantName());
-        merchantToSave.setBrandName(merchantReq.getBrandName());
-        merchantToSave.setProductType(merchantReq.getProductType());
-        merchantToSave.setStatus(merchantReq.getStatus());
-        merchantToSave.setImage(merchantReq.getImage());
-
-        return merchantRepository.save(merchantToSave);
+        return merchantRepository.save(merchant);
     }
 
     // Delete Merchant
     public Boolean deleteMerchant(String id) {
-        if (!merchantRepository.existsById(id)) {
-            return false;
-        }
+        Merchant merchant = getMerchant(id);
+        merchantRepository.delete(merchant);
 
-        merchantRepository.deleteById(id);
         return true;
     }
 }

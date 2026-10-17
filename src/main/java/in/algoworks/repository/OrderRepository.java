@@ -7,5 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 // MongoRepository already provides CRUD methods
 public interface OrderRepository extends
         MongoRepository<Order, String> {
-
+    java.util.Optional<Order> findByOrderId(String orderId);
 }

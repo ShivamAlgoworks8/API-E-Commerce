@@ -1,5 +1,6 @@
 package in.algoworks.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -31,6 +32,9 @@ public class Order {
 
     // Date on which the order was placed
     private String date;
+
+    @JsonIgnore
+    private Boolean stockDeducted;
 
     // Default constructor required by Spring/MongoDB
     public Order() {
@@ -114,5 +118,13 @@ public class Order {
     // Set order date
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public Boolean getStockDeducted() {
+        return stockDeducted;
+    }
+
+    public void setStockDeducted(Boolean stockDeducted) {
+        this.stockDeducted = stockDeducted;
     }
 }

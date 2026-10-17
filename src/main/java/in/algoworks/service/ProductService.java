@@ -1,26 +1,26 @@
+
 package in.algoworks.service;
 
 import in.algoworks.dto.ProductRequestDTO;
 import in.algoworks.entity.Product;
-import in.algoworks.repository.ProductRepository;
-import org.springframework.stereotype.Service;
 import in.algoworks.exception.ResourceNotFoundException;
+import in.algoworks.repository.ProductRepository;
+
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
 
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
-    // Create a new product using DTO
+    // Create a new product
     public Product createProduct(ProductRequestDTO productRequest) {
-
         Product product = new Product();
 
         product.setName(productRequest.getName());
@@ -32,8 +32,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    // Get product by MongoDB ID
-
+    // Get product by ID
     public Product getProduct(String id) {
         return productRepository.findById(id)
                 .orElseThrow(() ->
@@ -41,44 +40,30 @@ public class ProductService {
                                 "Product not found with id: " + id));
     }
 
-
     // Get all products
     public List<Product> getAllProduct() {
         return productRepository.findAll();
     }
 
-    // Update an existing product using DTO
-    public Product updateProduct(String id, ProductRequestDTO productRequest) {
+    // Update product
+    public Product updateProduct(
+            String id, ProductRequestDTO productRequest) {
 
-        Optional<Product> existingProduct = productRepository.findById(id);
+        Product product = getProduct(id);
 
-        if (existingProduct.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Product not found with id: " + id);
-        }
+        product.setName(productRequest.getName());
+        product.setPrice(productRequest.getPrice());
+        product.setStock(productRequest.getStock());
+        product.setDescription(productRequest.getDescription());
+        product.setProductType(productRequest.getProductType());
 
-        Product productToSave = existingProduct.get();
-
-        productToSave.setName(productRequest.getName());
-        productToSave.setPrice(productRequest.getPrice());
-        productToSave.setStock(productRequest.getStock());
-        productToSave.setDescription(productRequest.getDescription());
-        productToSave.setProductType(productRequest.getProductType());
-
-        return productRepository.save(productToSave);
+        return productRepository.save(product);
     }
 
-    // Delete product by MongoDB ID
+    // Delete product
     public Boolean deleteProduct(String id) {
-
-        Boolean isProduct = productRepository.existsById(id);
-
-        if (!isProduct) {
-            return false;
-        }
-
-        productRepository.deleteById(id);
-
+        Product product = getProduct(id);
+        productRepository.delete(product);
         return true;
     }
 }
