@@ -8,6 +8,7 @@ import in.algoworks.entity.Product;
 import in.algoworks.exception.ResourceNotFoundException;
 import in.algoworks.repository.CustomerRepository;
 import in.algoworks.repository.OrderRepository;
+import in.algoworks.repository.PaymentRepository;
 import in.algoworks.repository.ProductRepository;
 
 import org.springframework.http.HttpStatus;
@@ -24,13 +25,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final PaymentRepository paymentRepository;
 
     public OrderService(OrderRepository orderRepository,
                         CustomerRepository customerRepository,
-                        ProductRepository productRepository) {
+                        ProductRepository productRepository,
+                        PaymentRepository paymentRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     // Create order
@@ -132,6 +136,11 @@ public class OrderService {
     // Delete order
     public Boolean deleteOrder(String id) {
         Order order = getOrder(id);
+        if (paymentRepository.existsByOrderId(order.getOrderId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Order cannot be deleted while payments reference it");
+        }
         Product product = Boolean.TRUE.equals(order.getStockDeducted())
                 ? findProductByName(order.getProduct())
                 : null;

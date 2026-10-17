@@ -8,4 +8,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface OrderRepository extends
         MongoRepository<Order, String> {
     java.util.Optional<Order> findByOrderId(String orderId);
+    boolean existsByProduct(String product);
 }
