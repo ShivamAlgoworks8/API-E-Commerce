@@ -1,9 +1,22 @@
 package in.algoworks.entity;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+@Document(collection = "product")
 public class Product {
+
+    @Id
+    private String id;
+
+    private String name;
+    private double price;
+    private int stock;
+    private String description;
+    private String productType;
+    private String merchantName;
+    private String imageUrl;
+
     public String getId() {
         return id;
     }
@@ -52,11 +65,19 @@ public class Product {
         this.productType = productType;
     }
 
-    private String id;
-    private String name;
-    private double price;
-    private int stock;
-    private String description;
-    private String productType;
+    public String getMerchantName() {
+        return merchantName;
+    }
 
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

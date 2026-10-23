@@ -39,9 +39,15 @@ public class OrderService {
 
     // Create order
     public Order createOrder(OrderRequestDTO orderRequest) {
-        Customer customer = findCustomerByName(orderRequest.getCustomer());
-        Product product = findProductByName(orderRequest.getProduct());
+        Customer customer = findCustomer(orderRequest.getCustomer());
+        Product product = findProduct(orderRequest.getProduct());
         requireAvailableStock(product);
+        if (orderRequest.getAmount() != null
+                && Double.compare(orderRequest.getAmount(), product.getPrice()) != 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Order amount must match the selected product price");
+        }
 
         Order order = new Order();
 
@@ -82,18 +88,19 @@ public class OrderService {
     // Update order
     public Order updateOrder(String id, OrderRequestDTO orderRequest) {
         Order order = getOrder(id);
-        Customer customer = findCustomerByName(orderRequest.getCustomer());
-        Product product = findProductByName(orderRequest.getProduct());
+        boolean customerChanged = !Objects.equals(order.getCustomer(), orderRequest.getCustomer());
+        Customer customer = customerChanged ? findCustomer(orderRequest.getCustomer()) : null;
+        boolean productChanged = !Objects.equals(order.getProduct(), orderRequest.getProduct());
+        Product product = productChanged ? findProduct(orderRequest.getProduct()) : null;
         Product previousProduct = null;
         boolean wasStockDeducted = Boolean.TRUE.equals(order.getStockDeducted());
-        boolean productChanged = !Objects.equals(order.getProduct(), product.getName());
         boolean reserveNewProduct = wasStockDeducted && productChanged;
 
         if (wasStockDeducted && productChanged) {
-            previousProduct = findProductByName(order.getProduct());
+            previousProduct = findProductIfPresent(order.getProduct());
         }
 
-        if (reserveNewProduct) {
+        if (reserveNewProduct && product != null) {
             requireAvailableStock(product);
         }
 
@@ -105,10 +112,12 @@ public class OrderService {
         } else if (!nonBlank(order.getOrderId())) {
             order.setOrderId("ORD-" + UUID.randomUUID());
         }
-        order.setCustomer(customer.getName());
-        order.setProduct(product.getName());
         if (productChanged) {
+            order.setProduct(product.getName());
             order.setAmount(product.getPrice());
+        }
+        if (customerChanged) {
+            order.setCustomer(customer.getName());
         }
         order.setPaymentStatus(orderRequest.getPaymentStatus());
         order.setOrderStatus(orderRequest.getOrderStatus());
@@ -142,7 +151,7 @@ public class OrderService {
                     "Order cannot be deleted while payments reference it");
         }
         Product product = Boolean.TRUE.equals(order.getStockDeducted())
-                ? findProductByName(order.getProduct())
+                ? findProduct(order.getProduct())
                 : null;
         orderRepository.delete(order);
         if (product != null) {
@@ -152,30 +161,49 @@ public class OrderService {
         return true;
     }
 
-    private Customer findCustomerByName(String name) {
-        List<Customer> customers = customerRepository.findAllByName(name);
+    private Customer findCustomer(String reference) {
+        Customer customer = customerRepository.findById(reference).orElse(null);
+        if (customer != null) {
+            return customer;
+        }
+
+        List<Customer> customers = customerRepository.findAllByName(reference);
         if (customers.isEmpty()) {
             throw new ResourceNotFoundException(
-                    "Customer not found with name: " + name);
+                    "Customer not found with id or name: " + reference);
         }
         if (customers.size() > 1) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Customer name is ambiguous: " + name);
+                    "Customer name is ambiguous: " + reference);
         }
         return customers.getFirst();
     }
 
-    private Product findProductByName(String name) {
-        List<Product> products = productRepository.findAllByName(name);
+    private Product findProduct(String reference) {
+        Product product = findProductIfPresent(reference);
+        if (product != null) {
+            return product;
+        }
+
+        throw new ResourceNotFoundException(
+                "Product not found with id or name: " + reference);
+    }
+
+    private Product findProductIfPresent(String reference) {
+        Product product = productRepository.findById(reference).orElse(null);
+        if (product != null) {
+            return product;
+        }
+
+        List<Product> products = productRepository.findAllByName(reference);
         if (products.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Product not found with name: " + name);
+            return null;
         }
         if (products.size() > 1) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Product name is ambiguous: " + name);
+                    "Product name is ambiguous: " + reference);
         }
         return products.getFirst();
     }

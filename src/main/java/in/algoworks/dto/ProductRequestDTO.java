@@ -1,3 +1,4 @@
+
 package in.algoworks.dto;
 
 import jakarta.validation.constraints.Min;
@@ -17,6 +18,8 @@ public class ProductRequestDTO {
 
     private String description;
     private String productType;
+    private String merchantName;
+    private String imageUrl;
 
     public String getName() {
         return name;
@@ -56,5 +59,21 @@ public class ProductRequestDTO {
 
     public void setProductType(String productType) {
         this.productType = productType;
+    }
+
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

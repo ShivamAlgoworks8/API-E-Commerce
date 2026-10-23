@@ -18,9 +18,6 @@ import in.algoworks.dto.OrderRequestDTO;
 // Handles HTTP requests related to Orders
 @RestController
 @RequestMapping("/api/orders")
-
-// Allow frontend running on port 3001 to access Order APIs
-@CrossOrigin(origins = "http://localhost:3001")
 public class OrderController {
 
     private OrderService orderService;

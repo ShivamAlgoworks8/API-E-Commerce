@@ -1,4 +1,3 @@
-
 package in.algoworks.controller;
 
 import in.algoworks.dto.CustomerRequestDTO;
@@ -10,10 +9,10 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/customers")
-@CrossOrigin(origins = "http://localhost:3001")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -43,6 +42,17 @@ public class CustomerController {
             @PathVariable String id,
             @Valid @RequestBody CustomerRequestDTO customerReq) {
         return customerService.updateCustomer(id, customerReq);
+    }
+
+    // NEW: Update customer Active/Inactive status
+    @PatchMapping("/{id}/status")
+    public Customer updateCustomerStatus(
+            @PathVariable String id,
+            @RequestBody Map<String, String> request) {
+
+        String status = request.get("status");
+
+        return customerService.updateCustomerStatus(id, status);
     }
 
     @DeleteMapping("/{id}")

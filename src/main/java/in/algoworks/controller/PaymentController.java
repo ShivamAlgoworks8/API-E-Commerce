@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import in.algoworks.dto.PaymentRequestDTO;
 import jakarta.validation.Valid;
 import java.util.List;
-@CrossOrigin(origins = "http://localhost:3001")
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {

@@ -12,7 +12,7 @@ public class OrderRequestDTO {
     private String product;
 
     @Positive(message = "Order amount must be greater than zero")
-    private double amount;
+    private Double amount;
 
     private String paymentStatus;
 
@@ -45,11 +45,11 @@ public class OrderRequestDTO {
         this.product = product;
     }
 
-    public double getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 

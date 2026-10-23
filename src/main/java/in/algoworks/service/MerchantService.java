@@ -24,7 +24,6 @@ public class MerchantService {
         Merchant merchant = new Merchant();
 
         merchant.setMerchantName(merchantReq.getMerchantName());
-        merchant.setBrandName(merchantReq.getBrandName());
         merchant.setProductType(merchantReq.getProductType());
         merchant.setStatus(merchantReq.getStatus());
         merchant.setImage(merchantReq.getImage());
@@ -52,7 +51,7 @@ public class MerchantService {
         Merchant merchant = getMerchant(id);
 
         merchant.setMerchantName(merchantReq.getMerchantName());
-        merchant.setBrandName(merchantReq.getBrandName());
+        // merchant.setBrandName(merchantReq.getBrandName());
         merchant.setProductType(merchantReq.getProductType());
         merchant.setStatus(merchantReq.getStatus());
         merchant.setImage(merchantReq.getImage());

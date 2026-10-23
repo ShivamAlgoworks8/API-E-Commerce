@@ -35,6 +35,8 @@ public class ProductService {
         product.setStock(productRequest.getStock());
         product.setDescription(productRequest.getDescription());
         product.setProductType(productRequest.getProductType());
+        product.setMerchantName(productRequest.getMerchantName());
+        product.setImageUrl(productRequest.getImageUrl());
 
         return productRepository.save(product);
     }
@@ -67,6 +69,7 @@ public class ProductService {
 
         int stockDelta = productRequest.getStock() - product.getStock();
         int minimumStock = stockDelta < 0 ? -stockDelta : 0;
+
         long updatedCount = productRepository.updateProductById(
                 id,
                 productRequest.getName(),
@@ -74,7 +77,11 @@ public class ProductService {
                 productRequest.getDescription(),
                 productRequest.getProductType(),
                 minimumStock,
-                stockDelta);
+                stockDelta,
+                productRequest.getMerchantName(),
+                productRequest.getImageUrl()
+        );
+
         if (stockDelta != 0 && updatedCount == 0) {
             getProduct(id);
             throw new ResponseStatusException(
@@ -88,11 +95,6 @@ public class ProductService {
     // Delete product
     public Boolean deleteProduct(String id) {
         Product product = getProduct(id);
-        if (orderRepository.existsByProduct(product.getName())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Product cannot be deleted while orders reference it");
-        }
         productRepository.delete(product);
         return true;
     }

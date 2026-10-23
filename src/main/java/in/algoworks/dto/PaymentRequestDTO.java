@@ -21,12 +21,11 @@ public class PaymentRequestDTO {
     private String paymentTime;
 
     @Positive(message = "Payment amount must be greater than zero")
-    private double paymentAmount;
+    private Double paymentAmount;
 
     @NotBlank(message = "Customer ID is required")
     private String customerId;
 
-    @NotBlank(message = "Customer name is required")
     private String customerName;
 
     public String getPaymentId() {
@@ -77,11 +76,11 @@ public class PaymentRequestDTO {
         this.paymentTime = paymentTime;
     }
 
-    public double getPaymentAmount() {
+    public Double getPaymentAmount() {
         return paymentAmount;
     }
 
-    public void setPaymentAmount(double paymentAmount) {
+    public void setPaymentAmount(Double paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
 

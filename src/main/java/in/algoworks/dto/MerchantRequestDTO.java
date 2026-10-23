@@ -5,9 +5,6 @@ public class MerchantRequestDTO {
     @NotBlank(message = "Merchant name is required")
     private String merchantName;
 
-    @NotBlank(message = "Brand name is required")
-    private String brandName;
-
     @NotBlank(message = "Product type is required")
     private String productType;
 
@@ -22,14 +19,6 @@ public class MerchantRequestDTO {
 
     public void setMerchantName(String merchantName) {
         this.merchantName = merchantName;
-    }
-
-    public String getBrandName() {
-        return brandName;
-    }
-
-    public void setBrandName(String brandName) {
-        this.brandName = brandName;
     }
 
     public String getProductType() {

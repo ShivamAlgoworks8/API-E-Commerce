@@ -35,21 +35,31 @@ public class PaymentService {
 
     // Create payment
     public Payment createPayment(PaymentRequestDTO paymentRequest) {
-        Order order = findOrderByBusinessId(paymentRequest.getOrderId());
+        Order order = findOrder(paymentRequest.getOrderId());
         Customer customer = findCustomer(paymentRequest.getCustomerId());
         validateCustomerMatchesOrder(customer, order, paymentRequest.getCustomerName());
+
+        double paymentAmount = paymentRequest.getPaymentAmount() == null
+                ? order.getAmount()
+                : paymentRequest.getPaymentAmount();
+        if (Double.compare(paymentAmount, order.getAmount()) != 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Payment amount must match the order amount");
+        }
 
         Payment payment = new Payment();
 
         payment.setPaymentId(nonBlank(paymentRequest.getPaymentId())
                 ? paymentRequest.getPaymentId()
                 : "PAY-" + UUID.randomUUID());
+        ensurePaymentIdAvailable(payment.getPaymentId());
         payment.setOrderId(order.getOrderId());
         payment.setPaymentStatus(paymentRequest.getPaymentStatus());
         payment.setPaymentType(paymentRequest.getPaymentType());
         payment.setPaymentDate(paymentRequest.getPaymentDate());
         payment.setPaymentTime(paymentRequest.getPaymentTime());
-        payment.setPaymentAmount(paymentRequest.getPaymentAmount());
+        payment.setPaymentAmount(paymentAmount);
         payment.setCustomerId(customer.getId());
         payment.setCustomerName(customer.getName());
 
@@ -74,23 +84,21 @@ public class PaymentService {
             String id, PaymentRequestDTO paymentRequest) {
 
         Payment payment = getPayment(id);
-        Order order = findOrderByBusinessId(paymentRequest.getOrderId());
-        Customer customer = findCustomer(paymentRequest.getCustomerId());
-        validateCustomerMatchesOrder(customer, order, paymentRequest.getCustomerName());
 
-        if (nonBlank(paymentRequest.getPaymentId())) {
-            payment.setPaymentId(paymentRequest.getPaymentId());
-        } else if (!nonBlank(payment.getPaymentId())) {
-            payment.setPaymentId("PAY-" + UUID.randomUUID());
-        }
-        payment.setOrderId(order.getOrderId());
         payment.setPaymentStatus(paymentRequest.getPaymentStatus());
         payment.setPaymentType(paymentRequest.getPaymentType());
         payment.setPaymentDate(paymentRequest.getPaymentDate());
         payment.setPaymentTime(paymentRequest.getPaymentTime());
-        payment.setPaymentAmount(paymentRequest.getPaymentAmount());
-        payment.setCustomerId(customer.getId());
-        payment.setCustomerName(customer.getName());
+        if (paymentRequest.getPaymentAmount() != null) {
+            Order order = findOrder(payment.getOrderId());
+            if (Double.compare(
+                    paymentRequest.getPaymentAmount(), order.getAmount()) != 0) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Payment amount must match the order amount");
+            }
+            payment.setPaymentAmount(paymentRequest.getPaymentAmount());
+        }
 
         return paymentRepository.save(payment);
     }
@@ -103,10 +111,23 @@ public class PaymentService {
         return true;
     }
 
-    private Order findOrderByBusinessId(String orderId) {
-        return orderRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Order not found with orderId: " + orderId));
+    private Order findOrder(String orderReference) {
+        Order byBusinessId = orderRepository.findByOrderId(orderReference).orElse(null);
+        Order byMongoId = orderRepository.findById(orderReference).orElse(null);
+        if (byBusinessId != null && byMongoId != null
+                && !Objects.equals(byBusinessId.getId(), byMongoId.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Order reference is ambiguous: " + orderReference);
+        }
+        if (byBusinessId != null) {
+            return byBusinessId;
+        }
+        if (byMongoId != null) {
+            return byMongoId;
+        }
+        throw new ResourceNotFoundException(
+                "Order not found with business or MongoDB id: " + orderReference);
     }
 
     private Customer findCustomer(String customerId) {
@@ -117,11 +138,20 @@ public class PaymentService {
 
     private void validateCustomerMatchesOrder(
             Customer customer, Order order, String requestedName) {
-        if (!Objects.equals(customer.getName(), requestedName)
+        if ((nonBlank(requestedName)
+                && !Objects.equals(customer.getName(), requestedName))
                 || !Objects.equals(customer.getName(), order.getCustomer())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Payment customer must match the order customer");
+        }
+    }
+
+    private void ensurePaymentIdAvailable(String paymentId) {
+        if (paymentRepository.existsByPaymentId(paymentId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Payment ID already exists: " + paymentId);
         }
     }
 

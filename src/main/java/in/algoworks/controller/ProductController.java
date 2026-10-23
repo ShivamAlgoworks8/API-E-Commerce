@@ -1,4 +1,3 @@
-
 package in.algoworks.controller;
 
 import in.algoworks.dto.ProductRequestDTO;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3001")
 @RequestMapping("/api/products")
 public class ProductController {
 
