@@ -1,10 +1,11 @@
-
 package in.algoworks.service;
 
 import in.algoworks.dto.AuthResponseDTO;
 import in.algoworks.dto.LoginRequestDTO;
 import in.algoworks.dto.SignupRequestDTO;
+import in.algoworks.entity.Admin;
 import in.algoworks.entity.Customer;
+import in.algoworks.repository.AdminRepository;
 import in.algoworks.repository.CustomerRepository;
 
 import org.springframework.dao.DuplicateKeyException;
@@ -19,51 +20,56 @@ import java.util.Locale;
 public class AuthService {
 
     private final CustomerRepository customerRepository;
+    private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     public AuthService(
             CustomerRepository customerRepository,
+            AdminRepository adminRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService) {
 
         this.customerRepository = customerRepository;
+        this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
-    // Register Customer
+    // Default Customer Signup
     public AuthResponseDTO signup(SignupRequestDTO request) {
+        return signupCustomer(request);
+    }
 
+    // Default Customer Login
+    public AuthResponseDTO login(LoginRequestDTO request) {
+        return loginCustomer(request);
+    }
+
+    // Register Customer (Consumer portal) -> saved into 'customers' collection
+    public AuthResponseDTO signupCustomer(SignupRequestDTO request) {
         String email = request.getEmail()
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
-        if (!customerRepository
-                .findAllByEmailIgnoreCase(email)
-                .isEmpty()) {
+        if (!customerRepository.findAllByEmailIgnoreCase(email).isEmpty()) {
             throw emailAlreadyRegistered();
         }
 
-        // Create customer and hash password
         Customer customer = new Customer();
         customer.setName(request.getName().trim());
         customer.setEmail(email);
         customer.setRole("CUSTOMER");
-        customer.setPasswordHash(
-                passwordEncoder.encode(request.getPassword())
-        );
+        customer.setStatus("Active");
+        customer.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
-        // Save customer to MongoDB
         Customer savedCustomer;
-
         try {
             savedCustomer = customerRepository.save(customer);
         } catch (DuplicateKeyException exception) {
             throw emailAlreadyRegistered();
         }
 
-        // Generate JWT after successful signup
         String token = jwtService.generateToken(
                 savedCustomer.getId(),
                 savedCustomer.getEmail(),
@@ -78,36 +84,27 @@ public class AuthService {
         );
     }
 
-    // Login Customer
-    public AuthResponseDTO login(LoginRequestDTO request) {
-
+    // Login Customer (Consumer portal) -> validates against 'customers' collection
+    public AuthResponseDTO loginCustomer(LoginRequestDTO request) {
         String email = request.getEmail()
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
-        // Fail closed if legacy records contain ambiguous case-insensitive emails.
         var customers = customerRepository.findAllByEmailIgnoreCase(email);
         if (customers.size() != 1) {
             throw invalidCredentials();
         }
         Customer customer = customers.getFirst();
 
-        // Verify password against stored password hash
         if (customer.getPasswordHash() == null
-                || !passwordEncoder.matches(
-                request.getPassword(),
-                customer.getPasswordHash())) {
-
+                || !passwordEncoder.matches(request.getPassword(), customer.getPasswordHash())) {
             throw invalidCredentials();
         }
 
-        // Generate JWT after successful login
         String token = jwtService.generateToken(
                 customer.getId(),
                 customer.getEmail(),
-                "ADMIN".equalsIgnoreCase(customer.getRole())
-                        ? "ADMIN"
-                        : "CUSTOMER"
+                "CUSTOMER"
         );
 
         return new AuthResponseDTO(
@@ -118,7 +115,75 @@ public class AuthService {
         );
     }
 
-    // Duplicate email response
+    // Register Admin (Admin portal) -> saved into 'admins' collection
+    public AuthResponseDTO signupAdmin(SignupRequestDTO request) {
+        String email = request.getEmail()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        if (!adminRepository.findAllByEmailIgnoreCase(email).isEmpty()) {
+            throw emailAlreadyRegistered();
+        }
+
+        Admin admin = new Admin();
+        admin.setName(request.getName().trim());
+        admin.setEmail(email);
+        admin.setRole("ADMIN");
+        admin.setStatus("Active");
+        admin.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+
+        Admin savedAdmin;
+        try {
+            savedAdmin = adminRepository.save(admin);
+        } catch (DuplicateKeyException exception) {
+            throw emailAlreadyRegistered();
+        }
+
+        String token = jwtService.generateToken(
+                savedAdmin.getId(),
+                savedAdmin.getEmail(),
+                "ADMIN"
+        );
+
+        return new AuthResponseDTO(
+                savedAdmin.getId(),
+                savedAdmin.getName(),
+                savedAdmin.getEmail(),
+                token
+        );
+    }
+
+    // Login Admin (Admin portal) -> validates against 'admins' collection
+    public AuthResponseDTO loginAdmin(LoginRequestDTO request) {
+        String email = request.getEmail()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        var admins = adminRepository.findAllByEmailIgnoreCase(email);
+        if (admins.size() != 1) {
+            throw invalidCredentials();
+        }
+        Admin admin = admins.getFirst();
+
+        if (admin.getPasswordHash() == null
+                || !passwordEncoder.matches(request.getPassword(), admin.getPasswordHash())) {
+            throw invalidCredentials();
+        }
+
+        String token = jwtService.generateToken(
+                admin.getId(),
+                admin.getEmail(),
+                "ADMIN"
+        );
+
+        return new AuthResponseDTO(
+                admin.getId(),
+                admin.getName(),
+                admin.getEmail(),
+                token
+        );
+    }
+
     private ResponseStatusException emailAlreadyRegistered() {
         return new ResponseStatusException(
                 HttpStatus.CONFLICT,

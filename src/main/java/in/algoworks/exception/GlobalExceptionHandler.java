@@ -31,9 +31,19 @@ public class GlobalExceptionHandler {
         exception.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
-
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errors);
+    }
+
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> handleResponseStatusException(
+            org.springframework.web.server.ResponseStatusException exception) {
+
+        Map<String, String> error = new HashMap<>();
+        error.put("message", exception.getReason() != null ? exception.getReason() : exception.getMessage());
+        return ResponseEntity
+                .status(exception.getStatusCode())
+                .body(error);
     }
 }

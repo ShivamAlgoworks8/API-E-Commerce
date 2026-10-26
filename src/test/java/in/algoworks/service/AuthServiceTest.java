@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 class AuthServiceTest {
 
     private CustomerRepository customerRepository;
+    private in.algoworks.repository.AdminRepository adminRepository;
     private PasswordEncoder passwordEncoder;
     private JwtService jwtService;
     private AuthService authService;
@@ -32,10 +33,11 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         customerRepository = mock(CustomerRepository.class);
+        adminRepository = mock(in.algoworks.repository.AdminRepository.class);
         passwordEncoder = mock(PasswordEncoder.class);
         jwtService = mock(JwtService.class);
         authService = new AuthService(
-                customerRepository, passwordEncoder, jwtService);
+                customerRepository, adminRepository, passwordEncoder, jwtService);
     }
 
     @Test
@@ -154,5 +156,54 @@ class AuthServiceTest {
                 ResponseStatusException.class,
                 () -> authService.login(request));
         assertEquals(HttpStatus.UNAUTHORIZED, badPassword.getStatusCode());
+    }
+
+    @Test
+    void adminSignupReturnsTokenAndSavesToAdminRepository() {
+        when(adminRepository.findAllByEmailIgnoreCase("admin@nexora.com"))
+                .thenReturn(List.of());
+        when(passwordEncoder.encode("admin-pass-123")).thenReturn("hashed-admin-pass");
+        when(adminRepository.save(any(in.algoworks.entity.Admin.class))).thenAnswer(invocation -> {
+            in.algoworks.entity.Admin admin = invocation.getArgument(0);
+            admin.setId("admin-id");
+            return admin;
+        });
+        when(jwtService.generateToken("admin-id", "admin@nexora.com", "ADMIN"))
+                .thenReturn("admin-token");
+
+        SignupRequestDTO request = new SignupRequestDTO();
+        request.setName("Admin User");
+        request.setEmail("admin@nexora.com");
+        request.setPassword("admin-pass-123");
+
+        AuthResponseDTO response = authService.signupAdmin(request);
+
+        assertEquals("admin-id", response.getId());
+        assertEquals("Admin User", response.getName());
+        assertEquals("admin@nexora.com", response.getEmail());
+        assertEquals("admin-token", response.getToken());
+        verify(adminRepository).save(any(in.algoworks.entity.Admin.class));
+        verify(customerRepository, never()).save(any(Customer.class));
+    }
+
+    @Test
+    void adminLoginValidatesAgainstAdminRepository() {
+        in.algoworks.entity.Admin admin = new in.algoworks.entity.Admin("Admin User", "admin@nexora.com", "hashed-admin-pass");
+        admin.setId("admin-id");
+        when(adminRepository.findAllByEmailIgnoreCase("admin@nexora.com"))
+                .thenReturn(List.of(admin));
+        when(passwordEncoder.matches("admin-pass-123", "hashed-admin-pass"))
+                .thenReturn(true);
+        when(jwtService.generateToken("admin-id", "admin@nexora.com", "ADMIN"))
+                .thenReturn("admin-token");
+
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail("admin@nexora.com");
+        request.setPassword("admin-pass-123");
+
+        AuthResponseDTO response = authService.loginAdmin(request);
+
+        assertEquals("admin-id", response.getId());
+        assertEquals("admin-token", response.getToken());
     }
 }
