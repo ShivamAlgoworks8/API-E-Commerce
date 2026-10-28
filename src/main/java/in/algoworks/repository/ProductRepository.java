@@ -1,0 +1,39 @@
+
+package in.algoworks.repository;
+
+import in.algoworks.entity.Product;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
+
+import java.util.List;
+
+public interface ProductRepository extends MongoRepository<Product, String> {
+
+    List<Product> findAllByName(String name);
+
+    // Decrease stock only when stock is greater than zero
+    @Query("{ '_id': ?0, 'stock': { '$gt': 0 } }")
+    @Update("{ '$inc': { 'stock': -1 } }")
+    long decrementStockIfAvailable(String id);
+
+    // Increase stock by one
+    @Query("{ '_id': ?0 }")
+    @Update("{ '$inc': { 'stock': 1 } }")
+    long incrementStock(String id);
+
+    // Update product details and stock
+    @Query("{ '_id': ?0, 'stock': { '$gte': ?5 } }")
+    @Update("{ '$set': { 'name': ?1, 'price': ?2, 'description': ?3, 'productType': ?4, 'merchantName': ?7, 'imageUrl': ?8 }, '$inc': { 'stock': ?6 } }")
+    long updateProductById(
+            String id,
+            String name,
+            double price,
+            String description,
+            String productType,
+            int minimumStock,
+            int stockDelta,
+            String merchantName,
+            String imageUrl
+    );
+}
