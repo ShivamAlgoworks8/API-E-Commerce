@@ -1,123 +1,139 @@
+
 package in.algoworks.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-// This class represents an Order document in MongoDB
+import java.util.ArrayList;
+import java.util.List;
+
 @Document(collection = "orders")
 public class Order {
 
-    // MongoDB automatically uses this field as the unique ID
     @Id
     private String id;
 
-    // Order's display/business ID, for example: ORD-1001
     private String orderId;
-
-    // Customer who placed the order
     private String customer;
 
-    // Product included in the order
+    // Legacy fields retained for existing Admin functionality.
     private String product;
+    private int quantity;
 
-    // Total amount of the order
+    // New multi-product order structure.
+    private List<OrderItem> items = new ArrayList<>();
+
+    // Amount includes products and shipping.
     private double amount;
 
-    // Payment status: Paid, Pending, or Failed
     private String paymentStatus;
-
-    // Order status: Delivered, Processing, Cancelled, or Returned
+    private String paymentMethod;
     private String orderStatus;
-
-    // Date on which the order was placed
     private String date;
+
+    private DeliveryAddress deliveryAddress;
 
     @JsonIgnore
     private Boolean stockDeducted;
 
-    // Default constructor required by Spring/MongoDB
     public Order() {
     }
 
-    // Get MongoDB ID
     public String getId() {
         return id;
     }
 
-    // Set MongoDB ID
     public void setId(String id) {
         this.id = id;
     }
 
-    // Get order ID
     public String getOrderId() {
         return orderId;
     }
 
-    // Set order ID
     public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 
-    // Get customer name
     public String getCustomer() {
         return customer;
     }
 
-    // Set customer name
     public void setCustomer(String customer) {
         this.customer = customer;
     }
 
-    // Get product name
     public String getProduct() {
         return product;
     }
 
-    // Set product name
     public void setProduct(String product) {
         this.product = product;
     }
 
-    // Get order amount
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
+
     public double getAmount() {
         return amount;
     }
 
-    // Set order amount
     public void setAmount(double amount) {
         this.amount = amount;
     }
 
-    // Get payment status
     public String getPaymentStatus() {
         return paymentStatus;
     }
 
-    // Set payment status
     public void setPaymentStatus(String paymentStatus) {
         this.paymentStatus = paymentStatus;
     }
 
-    // Get order status
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     public String getOrderStatus() {
         return orderStatus;
     }
 
-    // Set order status
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
     }
 
-    // Get order date
     public String getDate() {
         return date;
     }
 
-    // Set order date
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public DeliveryAddress getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
 
     public Boolean getStockDeducted() {
@@ -126,5 +142,114 @@ public class Order {
 
     public void setStockDeducted(Boolean stockDeducted) {
         this.stockDeducted = stockDeducted;
+    }
+
+    public static class OrderItem {
+        private String product;
+        private int quantity;
+        private double price;
+        private double subtotal;
+
+        public OrderItem() {
+        }
+
+        public OrderItem(String product, int quantity, double price) {
+            this.product = product;
+            this.quantity = quantity;
+            this.price = price;
+            this.subtotal = price * quantity;
+        }
+
+        public String getProduct() {
+            return product;
+        }
+
+        public void setProduct(String product) {
+            this.product = product;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public void setPrice(double price) {
+            this.price = price;
+        }
+
+        public double getSubtotal() {
+            return subtotal;
+        }
+
+        public void setSubtotal(double subtotal) {
+            this.subtotal = subtotal;
+        }
+    }
+
+    public static class DeliveryAddress {
+        private String fullName;
+        private String phone;
+        private String street;
+        private String city;
+        private String state;
+        private String pincode;
+
+        public DeliveryAddress() {
+        }
+
+        public String getFullName() {
+            return fullName;
+        }
+
+        public void setFullName(String fullName) {
+            this.fullName = fullName;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+
+        public String getStreet() {
+            return street;
+        }
+
+        public void setStreet(String street) {
+            this.street = street;
+        }
+
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
+        }
+
+        public String getPincode() {
+            return pincode;
+        }
+
+        public void setPincode(String pincode) {
+            this.pincode = pincode;
+        }
     }
 }
