@@ -84,29 +84,50 @@ public class AuthService {
         );
     }
 
-    // Login Customer (Consumer portal) -> validates against 'customers' collection
+
+    // Login Customer (Consumer portal)
+    // Validates credentials and blocks inactive customers.
     public AuthResponseDTO loginCustomer(LoginRequestDTO request) {
+
+        // Normalize email to avoid case-sensitive login issues.
         String email = request.getEmail()
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
+        // Find the customer using the registered email.
         var customers = customerRepository.findAllByEmailIgnoreCase(email);
+
+        // Reject login if no customer is found or multiple records exist.
         if (customers.size() != 1) {
             throw invalidCredentials();
         }
+
         Customer customer = customers.getFirst();
 
+        // Verify the submitted password against the stored BCrypt hash.
         if (customer.getPasswordHash() == null
-                || !passwordEncoder.matches(request.getPassword(), customer.getPasswordHash())) {
+                || !passwordEncoder.matches(
+                request.getPassword(),
+                customer.getPasswordHash())) {
             throw invalidCredentials();
         }
 
+        // Block inactive customers before generating an authentication token.
+        if (!"Active".equalsIgnoreCase(customer.getStatus())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Your account is inactive. Please contact the administrator."
+            );
+        }
+
+        // Generate a JWT token only after credentials and account status pass.
         String token = jwtService.generateToken(
                 customer.getId(),
                 customer.getEmail(),
                 "CUSTOMER"
         );
 
+        // Return the authenticated customer's details and token.
         return new AuthResponseDTO(
                 customer.getId(),
                 customer.getName(),
@@ -114,6 +135,7 @@ public class AuthService {
                 token
         );
     }
+
 
     // Register Admin (Admin portal) -> saved into 'admins' collection
     public AuthResponseDTO signupAdmin(SignupRequestDTO request) {
