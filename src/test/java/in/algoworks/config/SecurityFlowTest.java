@@ -160,14 +160,14 @@ class SecurityFlowTest {
     }
 
     @Test
-    void ordersAreAccessibleAndRejectInvalidBearerTokens() throws Exception {
+    void ordersRequireAdminTokenAndRejectInvalidBearerTokens() throws Exception {
         when(orderService.getAllOrders()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/orders"))
-                .andExpect(status().isOk());
+                .andExpect(status().isUnauthorized());
 
         String token = jwtService.generateToken(
-                "customer-id", "person@example.com");
+                "admin-id", "admin@example.com", "ADMIN");
 
         mockMvc.perform(get("/api/orders")
                         .header("Authorization", "Bearer " + token))
@@ -186,7 +186,7 @@ class SecurityFlowTest {
         when(orderService.getAllOrders()).thenReturn(List.of(new Order()));
         when(paymentService.getAllPayments()).thenReturn(List.of(new Payment()));
         String token = jwtService.generateToken(
-                "customer-id", "person@example.com");
+                "admin-id", "admin@example.com", "ADMIN");
 
         for (String path : List.of(
                 "/api/products", "/api/merchants", "/api/orders", "/api/payments")) {

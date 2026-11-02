@@ -32,16 +32,13 @@ public class OrderRequestDTO {
 
     private String date;
 
-    // New fields for checkout orders.
+    // New fields for checkout orders (optional for legacy single-product orders/updates).
     @Valid
-    @NotEmpty(message = "At least one order item is required")
     private List<OrderItemRequestDTO> items;
 
     @Valid
-    @NotNull(message = "Delivery address is required")
     private DeliveryAddressDTO deliveryAddress;
 
-    @NotBlank(message = "Payment method is required")
     private String paymentMethod;
 
     public OrderRequestDTO() {

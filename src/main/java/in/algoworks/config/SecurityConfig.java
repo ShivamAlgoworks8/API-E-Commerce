@@ -9,6 +9,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.http.HttpMethod;
 import jakarta.servlet.DispatcherType;
 
 @Configuration
@@ -46,6 +47,11 @@ public class SecurityConfig {
                                                 org.springframework.http.HttpStatus.UNAUTHORIZED.value())))
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        // Order tracking: customers see their own orders, admins manage all.
+                        .requestMatchers(HttpMethod.GET, "/api/orders/my-orders").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.POST, "/api/orders").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/orders/*").authenticated()
+                        .requestMatchers("/api/orders", "/api/orders/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().permitAll()
