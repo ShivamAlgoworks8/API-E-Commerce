@@ -16,6 +16,7 @@ public class Order {
 
     private String orderId;
     private String customer;
+    private String customerId;
 
     // Legacy fields retained for existing Admin functionality.
     private String product;
@@ -33,6 +34,10 @@ public class Order {
     private String date;
 
     private DeliveryAddress deliveryAddress;
+
+    // Order tracking: ordered log of every status the order has moved through.
+    private List<StatusHistory> statusHistory = new ArrayList<>();
+    private String updatedAt;
 
     @JsonIgnore
     private Boolean stockDeducted;
@@ -58,6 +63,14 @@ public class Order {
 
     public String getCustomer() {
         return customer;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
     }
 
     public void setCustomer(String customer) {
@@ -136,12 +149,78 @@ public class Order {
         this.deliveryAddress = deliveryAddress;
     }
 
+    public List<StatusHistory> getStatusHistory() {
+        return statusHistory;
+    }
+
+    public void setStatusHistory(List<StatusHistory> statusHistory) {
+        this.statusHistory = statusHistory;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public Boolean getStockDeducted() {
         return stockDeducted;
     }
 
     public void setStockDeducted(Boolean stockDeducted) {
         this.stockDeducted = stockDeducted;
+    }
+
+    // A single entry in the order tracking timeline.
+    public static class StatusHistory {
+        private String status;
+        private String timestamp;
+        private String note;
+        private String updatedBy;
+
+        public StatusHistory() {
+        }
+
+        public StatusHistory(String status, String timestamp, String note, String updatedBy) {
+            this.status = status;
+            this.timestamp = timestamp;
+            this.note = note;
+            this.updatedBy = updatedBy;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public String getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(String timestamp) {
+            this.timestamp = timestamp;
+        }
+
+        public String getNote() {
+            return note;
+        }
+
+        public void setNote(String note) {
+            this.note = note;
+        }
+
+        public String getUpdatedBy() {
+            return updatedBy;
+        }
+
+        public void setUpdatedBy(String updatedBy) {
+            this.updatedBy = updatedBy;
+        }
     }
 
     public static class OrderItem {
@@ -251,5 +330,6 @@ public class Order {
         public void setPincode(String pincode) {
             this.pincode = pincode;
         }
+
     }
 }
