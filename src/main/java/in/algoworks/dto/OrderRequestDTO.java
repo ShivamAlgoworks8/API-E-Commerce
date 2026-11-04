@@ -40,6 +40,7 @@ public class OrderRequestDTO {
     private DeliveryAddressDTO deliveryAddress;
 
     private String paymentMethod;
+    private String couponCode;
 
     public OrderRequestDTO() {
     }
@@ -130,6 +131,14 @@ public class OrderRequestDTO {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getCouponCode() {
+        return couponCode;
+    }
+
+    public void setCouponCode(String couponCode) {
+        this.couponCode = couponCode;
     }
 
     public static class OrderItemRequestDTO {
